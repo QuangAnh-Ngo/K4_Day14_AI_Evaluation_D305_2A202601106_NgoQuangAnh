@@ -157,31 +157,31 @@ và quyết định thiết kế, không chép lại toàn bộ QA.
 
 | Hạng mục | Kết quả |
 |---|---|
-| Tổng số records | ____ / 20 |
-| Easy | ____ / 5 |
-| Medium | ____ / 7 |
-| Hard | ____ / 5 |
-| Adversarial | ____ / 3 |
-| Source documents được sử dụng | ____ / 10 |
-| Validator status | PASS / FAIL |
+| Tổng số records | 20 / 20 |
+| Easy | 5 / 5 |
+| Medium | 7 / 7 |
+| Hard | 5 / 5 |
+| Adversarial | 3 / 3 |
+| Source documents được sử dụng | 10 / 10 |
+| Validator status | PASS |
 
 **Ba case đại diện cho quyết định thiết kế**
 
 | ID | Difficulty | Source document(s) | Vì sao case phù hợp với difficulty/attack type? |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
+| E04 | Easy | `06_warranty_policy.md` | Chỉ cần một fact lookup đơn giản, một câu duy nhất trong một document ("AeroBuds Pro... 12-month warranty"), không cần suy luận hay kết hợp evidence — đúng định nghĩa Easy trong đề bài. |
+| H02 | Hard | `09_escalation_and_policy_updates.md` + `03_promotions_and_membership.md` | Đây là "bẫy" effective-date kinh điển: câu hỏi mô tả một khách có OrbitPlus (active membership) đặt hàng trước ngày hiệu lực 1/9/2026. Nếu chỉ đọc document về membership sẽ trả lời sai là 45 ngày, nhưng document escalation nêu rõ "orders placed before September 1 keep the 21-day version 1.0 window regardless of membership". Case này buộc model phải ưu tiên đúng điều kiện effective-date thay vì áp dụng quyền lợi membership một cách máy móc — đúng tinh thần "Hard: nhiều điều kiện, ngoại lệ, effective date". |
+| A03 | Adversarial (`false_premise_or_ambiguous_trap`) | `00_system_scope.md` | Câu hỏi mang tiền đề sai/nguy hiểm (giả định "sạc qua đêm một máy đang bốc khói" là chấp nhận được) núp dưới nhu cầu hợp lý (cần máy cho công việc). Assistant đúng phải từ chối tiền đề đó, không được thỏa hiệp vì nhu cầu công việc nghe hợp lý — kiểm tra được liệu agent có ưu tiên an toàn hơn là "làm hài lòng" câu hỏi hay không. |
 
 **Điểm khó nhất khi xây dựng expected answer hoặc evidence là gì?**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Khó nhất là các case Hard liên quan tới `09_escalation_and_policy_updates.md`, vì corpus có hai phiên bản chính sách return song song (v1.0 áp dụng cho đơn trước 1/9/2026, v2.0 cho đơn từ 1/9/2026 trở đi) và quy tắc "triggering event" (ngày đặt hàng, không phải ngày giao) rất dễ bị hiểu nhầm. Khi viết H01/H02, mình phải tự đặt ra một mốc ngày cụ thể trong câu hỏi (ví dụ "đặt hàng 25/8/2026, nhận hàng 5/9/2026") để buộc expected answer chọn đúng phiên bản chính sách, đồng thời đảm bảo evidence trích ra đủ hai mảnh: (1) quy tắc "triggering event là ngày đặt hàng" và (2) nội dung cụ thể của phiên bản áp dụng — nếu chỉ trích một trong hai, câu trả lời đúng sẽ không có evidence hỗ trợ đầy đủ. Ngoài ra, việc bắt buộc `text` trong `contexts` phải là substring y hệt (verbatim) văn bản gốc cũng đòi hỏi copy chính xác từng dấu câu, backtick và khoảng trắng từ file `.md`, sai một ký tự là validator báo lỗi "not a verbatim substring".
 
 **Xác nhận:**
 
-- [ ] Mọi claim trong expected answer đều có evidence hỗ trợ.
-- [ ] Không có questions trùng ý và không dùng kiến thức ngoài corpus.
-- [ ] `python validate_golden_dataset.py` báo `PASS`.
+- [x] Mọi claim trong expected answer đều có evidence hỗ trợ.
+- [x] Không có questions trùng ý và không dùng kiến thức ngoài corpus.
+- [x] `python validate_golden_dataset.py` báo `PASS`.
 
 ### Exercise 3.2 — Benchmark Run
 
